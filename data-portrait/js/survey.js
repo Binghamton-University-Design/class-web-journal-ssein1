@@ -1,4 +1,20 @@
-let responseIndex = 3;
+let responseIndex = 0;
+
+function reverseObject(object) {
+        var newObject = {};
+        var keys = [];
+
+        for (var key in object) {
+            keys.push(key);
+        }
+
+        for (var i = keys.length - 1; i >= 0; i--) {
+          var value = object[keys[i]];
+          newObject[keys[i]]= value;
+        }       
+
+        return newObject;
+      }
 
 // Answer class
 class Answer {
@@ -21,7 +37,7 @@ class Answer {
     if(r == this.q) {
       if(!this.is_text) {
         //console.log('not ok:'+ this.imgtext);
-          image(this.img, this.x, this.y);
+          image(this.img, this.x, this.y, 500, 500);
       }
     }
   }
@@ -33,7 +49,7 @@ class Answer {
         //console.log('ok');
         fill(239, 173, 27);
         textSize(43);
-        textFont('C-Medium');
+        textFont('Helvetica');
         textLeading(60)
         text(this.imgtext+'!', this.x, this.y, 460);
         //
@@ -59,30 +75,49 @@ function preload() {
 }
 
 function loadData(r) {
+  //bg = loadImage('images/background.png');
   let responseData = data['data'];
   let responseKey = data['key'];
+
+  //console.log(responseKey);
 
   for (let i = 0; i < responseData.length; i++) {
     //console.log(i+'-------------------------------');
     $("#nav").append('<li><a id="'+i+'" href="#">'+i+'</a></li>');
 
     let response = responseData[i];
+
+    response = reverseObject(response);
     //console.log(response);
     var res = Object.entries(response);
 
     for (const [question, answer] of res) {
-      //console.log(`${question} and ${answer}`);
+      console.log(`${question} and ${answer}`);
       let imgtext = '';
       let key = responseKey[question];
+      let ans = key[answer];
       let x = key['x'];
       let y = key['y'];
       let is_text = key['is_text'];
+      let determined_by = key['determined_by'];
+
+      if(determined_by){
+        console.log('det? '+determined_by);
+        let det = responseKey[determined_by]
+        let q = response[determined_by]
+        let imdet = det[q]
+        imdet = imdet.substr(0, imdet.lastIndexOf("."))
+        let imkey = key[answer];
+        imkey = imkey.substr(0, imkey.lastIndexOf("."))
+        console.log(imkey+imdet+'.png');
+        ans = imkey+imdet+'.png';
+      }
 
       if(is_text == true){
         //console.log(answer);
         imgtext = answer;
       } else {
-        imgtext = key[answer];
+        imgtext = ans;
         //console.log(imgtext);
       }
 
@@ -111,7 +146,8 @@ function setup() {
 }
 
 function draw() {
-  background(0);
+  background(255,255,255);
+  //image(bg, 0, 0);
 
   // Display all answers
   for (let i = 0; i < answers.length; i++) {
